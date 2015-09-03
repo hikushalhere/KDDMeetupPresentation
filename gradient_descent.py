@@ -14,7 +14,7 @@ def safe(f):
     
 def step(v, direction, step_size):
     """move step_size in the direction from v"""
-    pass
+    return [v_i + direction_i * step_size for v_i, direction_i in zip(v, direction)]
 
 #
 # 
@@ -27,24 +27,35 @@ def minimize_batch(target_fn, gradient_fn, theta_0, tolerance=0.000001):
     step_sizes = [100, 10, 1, 0.1, 0.01, 0.001, 0.0001, 0.00001]
     
     # set theta to initial value
+    theta = theta_0
 
     # use the safe version of target_fn
+    target_fn = safe(target_fn)
 
     # compute the value we're minimizing
+    value = target_fn(theta)
     
     converged = False
 
     # Implement the gradient descent loop.
     while converged == False:
-        pass
+        
         # compute gradient
+        gradient = gradient_fn(theta)
 
         # get the list of next thetas for each step size.
+        next_thetas = [step(theta, gradient, -step_size) for step_size in step_sizes]
         
         # choose the theta that minimizes the error function.
+        next_theta = min(next_thetas, key=target_fn)
+        next_value = target_fn(next_theta)
         
         # stop if we're "converging"
-    
+        if abs(value - next_value) < tolerance:
+            converged = True
+            theta = next_theta
+        else:
+            theta, value = next_theta, next_value
     
     return theta
 
@@ -57,13 +68,13 @@ def negate_all(f):
     return lambda *args, **kwargs: [-y for y in f(*args, **kwargs)]
 
 def maximize_batch(target_fn, gradient_fn, theta_0, tolerance=0.000001):
-    return [1.0, 1.0, 1.0]
-    '''
+    #return [1.0, 1.0, 1.0]
+    
     return minimize_batch(negate(target_fn),
                           negate_all(gradient_fn),
                           theta_0, 
                           tolerance)
-    '''
+    
 #
 # minimize / maximize stochastic
 #

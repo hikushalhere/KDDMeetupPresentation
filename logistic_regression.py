@@ -15,20 +15,28 @@ import math, random
 
 def logistic(x):
     # Implement the standard logistic function.
+    return 1.0 / (1 + math.exp(-x))
 
 def logistic_log_likelihood_i(x_i, y_i, beta):
     # Implement the log likelihood function for 1 training example.
+    f = logistic(dot(x_i,beta))
+    if y_i == 1:
+        return math.log(f)
+    else:
+        return math.log(1-f)
 
 def logistic_log_likelihood(x, y, beta):
     # Implement the log likelihood function for all training example.
-
+    return sum(logistic_log_likelihood_i(x_i, y_i, beta) for x_i, y_i in zip(x, y))
 
 def logistic_log_partial_ij(x_i, y_i, beta, j):
     # Implement the computation of partial derivative of log likelihood w.r.t. beta_j.
     
     """here i is the index of the data point,
     j the index of the derivative"""
-    pass
+    
+    f = logistic(dot(x_i, beta))
+    return (y_i - f) * x_i[j]
 
     
 def logistic_log_gradient_i(x_i, y_i, beta):
@@ -36,12 +44,19 @@ def logistic_log_gradient_i(x_i, y_i, beta):
     
     """the gradient of the log likelihood 
     corresponding to the i-th data point"""
-    pass
+    #[pd1, pd2, ...., pd_D]
+    return [logistic_log_partial_ij(x_i, y_i, beta, j) for j, _ in enumerate(beta)]
     
     
 def logistic_log_gradient(x, y, beta):
     # Implement the computation of the partial derivative of log likelihood over all training examples.
-    pass
+    total_gradient = [0] * len(beta)
+    
+    for x_i, y_i in zip(x, y):
+        partial_derivative = logistic_log_gradient_i(x_i, y_i, beta)
+        total_gradient = vector_add(total_gradient, partial_derivative)
+    
+    return total_gradient
     
 if __name__ == "__main__":
     
